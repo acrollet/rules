@@ -1,11 +1,14 @@
 <?php
 
-namespace Drupal\rules\Form\Expression;
+namespace Drupal\rules\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\rules\Context\ContextConfig;
-use Drupal\Core\Plugin\Context\ContextDefinitionInterface;
+// TODO Question: should we do this change?
+use Drupal\rules\Context\ContextDefinitionInterface;
 use Drupal\rules\Context\DataProcessorManagerTrait;
+use Drupal\typed_data\Widget\FormWidgetManagerTrait;
 
 /**
  * Provides form logic for handling contexts when configuring an expression.
@@ -13,6 +16,8 @@ use Drupal\rules\Context\DataProcessorManagerTrait;
 trait ContextFormTrait {
 
   use DataProcessorManagerTrait;
+  use FormWidgetManagerTrait;
+
 
   /**
    * Provides the form part for a context parameter.
@@ -51,6 +56,22 @@ trait ContextFormTrait {
     else {
       $default_value = $context_definition->getDefaultValue();
     }
+
+
+    //    $definition = $context_definition->toArray();
+    $widget_id = $context_definition->getWidgetId();
+    if ($widget_id) {
+      // TODO Question: Should we load here a widget and use its ::form() method? If so how about validations?
+      $widget = $this->getFormWidgetManager()->createInstance($widget_id);
+      $sub_form = [];
+      $sub_form_state = SubformState::createForSubform($sub_form, $form, $form_state);
+      // TODO ^^^^If so - we have to fetch TypedData somehow here.
+      die(kint($widget->form($context_definition->getDataDefinition(), $sub_form_state)));
+    }
+    else {
+      // TODO what to do here?
+    }
+
     $form['context'][$context_name]['setting'] = [
       '#type' => 'textfield',
       '#title' => $title,

@@ -4,6 +4,13 @@ namespace Drupal\rules\Context;
 
 use Drupal\Core\Plugin\Context\ContextDefinition as ContextDefinitionCore;
 use Drupal\Component\Plugin\Exception\ContextException;
+use Drupal\Core\TypedData\Plugin\DataType\Email;
+use Drupal\Core\TypedData\Type\DateTimeInterface;
+use Drupal\Core\TypedData\Type\DurationInterface;
+use Drupal\Core\TypedData\Type\FloatInterface;
+use Drupal\Core\TypedData\Type\IntegerInterface;
+use Drupal\Core\TypedData\Type\StringInterface;
+use Drupal\Core\TypedData\Type\UriInterface;
 
 /**
  * Extends the core context definition class with useful methods.
@@ -115,6 +122,44 @@ class ContextDefinition extends ContextDefinitionCore implements ContextDefiniti
   public function setAssignmentRestriction($restriction) {
     $this->assignmentRestriction = $restriction;
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getWidgetId() {
+    // TODO Should we make TextareaWidget::isApplicable() static and use here?
+    $definition_class = $this->getDataDefinition()->getClass();
+    $widgets = [
+      'text_input' => [
+        DateTimeInterface::class,
+        DurationInterface::class,
+        Email::class,
+        FloatInterface::class,
+        IntegerInterface::class,
+        // TODO Should we use text_input or textarea for strings?
+        StringInterface::class,
+        UriInterface::class,
+      ],
+      'textarea' => [
+        StringInterface::class,
+      ]
+    ];
+
+    foreach ($widgets as $widget_id => $data_types) {
+      foreach ($data_types as $data_type) {
+        if (is_subclass_of($definition_class, $data_type)) {
+          return $widget_id;
+        }
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getWidgetSettings() {
+    return [];
   }
 
 }
