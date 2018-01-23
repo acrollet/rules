@@ -18,7 +18,6 @@ trait ContextFormTrait {
   use DataProcessorManagerTrait;
   use FormWidgetManagerTrait;
 
-
   /**
    * Provides the form part for a context parameter.
    */
@@ -57,7 +56,6 @@ trait ContextFormTrait {
       $default_value = $context_definition->getDefaultValue();
     }
 
-
     //    $definition = $context_definition->toArray();
     $widget_id = $context_definition->getWidgetId();
     if ($widget_id) {
@@ -66,7 +64,6 @@ trait ContextFormTrait {
       $sub_form = [];
       $sub_form_state = SubformState::createForSubform($sub_form, $form, $form_state);
       // TODO ^^^^If so - we have to fetch TypedData somehow here.
-      die(kint($widget->form($context_definition->getDataDefinition(), $sub_form_state)));
     }
     else {
       // TODO what to do here?
