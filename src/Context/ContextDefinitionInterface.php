@@ -74,8 +74,11 @@ interface ContextDefinitionInterface extends ContextDefinitionInterfaceCore {
    * @return string|null
    *   A string with the widget id or nothing if the data type needed by
    *   the context is not supported by any widget.
+   *
+   * @param string $dataType
+   *   The data type of the field.
    */
-  public function getWidgetId();
+  public function getWidgetId($dataType);
 
   /**
    * Gets default configuration of the widget.

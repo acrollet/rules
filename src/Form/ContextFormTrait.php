@@ -56,25 +56,39 @@ trait ContextFormTrait {
       $default_value = $context_definition->getDefaultValue();
     }
 
-    //    $definition = $context_definition->toArray();
-    $widget_id = $context_definition->getWidgetId();
-    if ($widget_id) {
-      // TODO Question: Should we load here a widget and use its ::form() method? If so how about validations?
-      $widget = $this->getFormWidgetManager()->createInstance($widget_id);
-      $sub_form = [];
-      $sub_form_state = SubformState::createForSubform($sub_form, $form, $form_state);
-      // TODO ^^^^If so - we have to fetch TypedData somehow here.
-    }
-    else {
-      // TODO what to do here?
-    }
-
     $form['context'][$context_name]['setting'] = [
       '#type' => 'textfield',
       '#title' => $title,
       '#required' => $context_definition->isRequired(),
       '#default_value' => $default_value,
     ];
+
+    // Use suitable widgets for data entry of values.
+    if ($context_name == 'value') {
+      $dataManager = $context_definition->getTypedDataManager();
+      $dataDefinition = $context_definition->getDataDefinition();
+      $typed_data = $dataManager->create($dataDefinition);
+
+      // FIXME: Maybe there's a more elegant way to get the data type
+      // given the property path?
+      $property_path = $configuration['context_mapping']['data'];
+      $sub_paths = explode('.', $property_path);
+      $entity_properties = \Drupal::entityManager()->getFieldDefinitions($sub_paths[0]);
+      if (isset($entity_properties[$sub_paths[1]])) {
+        $dataType = $entity_properties[$sub_paths[1]]->getDataType();
+      }
+      else {
+        $dataType = \Drupal::entityManager()->getStorage('field_storage_config')->load($property_path)->getType();
+      }
+
+      if ($widget_id = $context_definition->getWidgetId($dataType)) {
+        $widget = $this->getFormWidgetManager()->createInstance($widget_id);
+        $sub_form = [];
+        $sub_form_state = SubformState::createForSubform($sub_form, $form, $form_state);
+
+        $form['context'][$context_name]['setting'] = $widget->form($typed_data, $sub_form_state);
+      }
+    }
 
     $element = &$form['context'][$context_name]['setting'];
 
