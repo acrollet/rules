@@ -68,4 +68,30 @@ interface ContextDefinitionInterface extends ContextDefinitionInterfaceCore {
    */
   public function toArray();
 
+  /**
+   * Gets a typed data widget id.
+   *
+   * @return string
+   *   The typed data widget id. By default returns the "broken" widget.
+   */
+  public function getWidgetId();
+
+  /**
+   * Sets the typed data widget id.
+   *
+   * @param string $widget_id
+   *   The typed data widget id.
+   *
+   * @return $this
+   */
+  public function setWidgetId($widget_id);
+
+  /**
+   * Gets default configuration of the widget.
+   *
+   * @return array
+   *   An associative array with the default configuration.
+   */
+  public function getWidgetSettings();
+
 }
