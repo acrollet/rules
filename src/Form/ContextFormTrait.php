@@ -69,17 +69,8 @@ trait ContextFormTrait {
       $dataDefinition = $context_definition->getDataDefinition();
       $typed_data = $dataManager->create($dataDefinition);
 
-      // FIXME: Maybe there's a more elegant way to get the data type
-      // given the property path?
       $property_path = $configuration['context_mapping']['data'];
-      $sub_paths = explode('.', $property_path);
-      $entity_properties = \Drupal::entityManager()->getFieldDefinitions($sub_paths[0]);
-      if (isset($entity_properties[$sub_paths[1]])) {
-        $dataType = $entity_properties[$sub_paths[1]]->getDataType();
-      }
-      else {
-        $dataType = \Drupal::entityManager()->getStorage('field_storage_config')->load($property_path)->getType();
-      }
+      $dataType = \Drupal::entityManager()->getStorage('field_storage_config')->load($property_path)->getType();
 
       if ($widget_id = $context_definition->getWidgetId($dataType)) {
         $widget = $this->getFormWidgetManager()->createInstance($widget_id);

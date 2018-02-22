@@ -128,13 +128,13 @@ class ContextDefinition extends ContextDefinitionCore implements ContextDefiniti
         'datetime',
         'duration',
         'email',
+        'link',
         'float',
         'integer',
         'string',
         'url',
       ],
       'textarea' => [
-        'daterange',
         'list',
       ],
     ];
