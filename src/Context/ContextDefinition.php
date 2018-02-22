@@ -4,11 +4,22 @@ namespace Drupal\rules\Context;
 
 use Drupal\Core\Plugin\Context\ContextDefinition as ContextDefinitionCore;
 use Drupal\Component\Plugin\Exception\ContextException;
+use Drupal\Core\TypedData\Plugin\DataType\Email;
+use Drupal\Core\TypedData\Type\DateTimeInterface;
+use Drupal\Core\TypedData\Type\DurationInterface;
+use Drupal\Core\TypedData\Type\FloatInterface;
+use Drupal\Core\TypedData\Type\IntegerInterface;
+use Drupal\Core\TypedData\OptionsProviderInterface;
+use Drupal\Core\TypedData\Type\StringInterface;
+use Drupal\Core\TypedData\Type\UriInterface;
+use Drupal\typed_data\Widget\FormWidgetManagerTrait;
 
 /**
  * Extends the core context definition class with useful methods.
  */
 class ContextDefinition extends ContextDefinitionCore implements ContextDefinitionInterface {
+
+  use FormWidgetManagerTrait;
 
   /**
    * The mapping of config export keys to internal properties.
@@ -18,6 +29,7 @@ class ContextDefinition extends ContextDefinitionCore implements ContextDefiniti
   protected static $nameMap = [
     'type' => 'dataType',
     'label' => 'label',
+    'widget_id' => 'widgetId',
     'description' => 'description',
     'multiple' => 'isMultiple',
     'required' => 'isRequired',
@@ -26,6 +38,13 @@ class ContextDefinition extends ContextDefinitionCore implements ContextDefiniti
     'allow_null' => 'allowNull',
     'assignment_restriction' => 'assignmentRestriction',
   ];
+
+  /**
+   * The Typed Data widget ID to be used.
+   *
+   * @var string
+   */
+  protected $widgetId;
 
   /**
    * Whether the context value is allowed to be NULL or not.
@@ -115,6 +134,61 @@ class ContextDefinition extends ContextDefinitionCore implements ContextDefiniti
   public function setAssignmentRestriction($restriction) {
     $this->assignmentRestriction = $restriction;
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getWidgetId() {
+    $data_definition = $this->getDataDefinition();
+
+    if ($this->widgetId) {
+      $widget = $this->getFormWidgetManager()->createInstance($this->widgetId);
+
+      if ($widget->isApplicable($data_definition)) {
+        return $this->widgetId;
+      }
+    }
+
+    $widgets = [
+      'text_input' => [
+        Email::class,
+        DateTimeInterface::class,
+        DurationInterface::class,
+        FloatInterface::class,
+        IntegerInterface::class,
+        UriInterface::class,
+        StringInterface::class,
+      ],
+      'select' => [
+        OptionsProviderInterface::class,
+      ],
+    ];
+
+    foreach ($widgets as $widget_id => $data_types) {
+      foreach ($data_types as $data_type) {
+        if (is_subclass_of($data_definition->getClass(), $data_type)) {
+          return $widget_id;
+        }
+      }
+    }
+
+    return 'broken';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setWidgetId($widget_id) {
+    $this->widgetId = $widget_id;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getWidgetSettings() {
+    return [];
   }
 
 }
