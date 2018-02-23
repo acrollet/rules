@@ -70,14 +70,14 @@ trait ContextFormTrait {
       $typed_data = $dataManager->create($dataDefinition);
 
       if ($property_path = $configuration['context_mapping']['data']) {
-	$sub_paths = explode('.', $property_path);
+        $sub_paths = explode('.', $property_path);
         $dataType = \Drupal::entityManager()->getStorage('field_storage_config')->load($sub_paths[0] . '.' . $sub_paths[1])->getType();
-  
+
         if ($widget_id = $context_definition->getWidgetId($dataType)) {
           $widget = $this->getFormWidgetManager()->createInstance($widget_id);
           $sub_form = [];
           $sub_form_state = SubformState::createForSubform($sub_form, $form, $form_state);
-  
+
           $form['context'][$context_name]['setting'] = $widget->form($typed_data, $sub_form_state);
         }
       }
