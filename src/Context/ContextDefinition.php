@@ -124,6 +124,7 @@ class ContextDefinition extends ContextDefinitionCore implements ContextDefiniti
     $widgets = [
       'text_input' => [
         'boolean',
+        'datetime',
         'entity_reference',
         'datetime',
         'duration',
@@ -136,6 +137,7 @@ class ContextDefinition extends ContextDefinitionCore implements ContextDefiniti
       ],
       'textarea' => [
         'list',
+        'daterange',
       ],
     ];
 

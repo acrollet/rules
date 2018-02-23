@@ -69,15 +69,17 @@ trait ContextFormTrait {
       $dataDefinition = $context_definition->getDataDefinition();
       $typed_data = $dataManager->create($dataDefinition);
 
-      $property_path = $configuration['context_mapping']['data'];
-      $dataType = \Drupal::entityManager()->getStorage('field_storage_config')->load($property_path)->getType();
-
-      if ($widget_id = $context_definition->getWidgetId($dataType)) {
-        $widget = $this->getFormWidgetManager()->createInstance($widget_id);
-        $sub_form = [];
-        $sub_form_state = SubformState::createForSubform($sub_form, $form, $form_state);
-
-        $form['context'][$context_name]['setting'] = $widget->form($typed_data, $sub_form_state);
+      if ($property_path = $configuration['context_mapping']['data']) {
+	$sub_paths = explode('.', $property_path);
+        $dataType = \Drupal::entityManager()->getStorage('field_storage_config')->load($sub_paths[0] . '.' . $sub_paths[1])->getType();
+  
+        if ($widget_id = $context_definition->getWidgetId($dataType)) {
+          $widget = $this->getFormWidgetManager()->createInstance($widget_id);
+          $sub_form = [];
+          $sub_form_state = SubformState::createForSubform($sub_form, $form, $form_state);
+  
+          $form['context'][$context_name]['setting'] = $widget->form($typed_data, $sub_form_state);
+        }
       }
     }
 
