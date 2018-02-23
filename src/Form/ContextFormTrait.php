@@ -35,7 +35,7 @@ trait ContextFormTrait {
     // exist default to the "input" mode.
     $mode = $form_state->get('context_' . $context_name);
     if (!$mode) {
-      if (isset($configuration['context_mapping'][$context_name])) {
+      if (isset($configuration['context_mapping']) && isset($configuration['context_mapping'][$context_name])) {
         $mode = 'selector';
       }
       else {
@@ -49,7 +49,7 @@ trait ContextFormTrait {
     if (isset($configuration['context_values'][$context_name])) {
       $default_value = $configuration['context_values'][$context_name];
     }
-    elseif (isset($configuration['context_mapping'][$context_name])) {
+    elseif (isset($configuration['context_mapping']) && isset($configuration['context_mapping'][$context_name])) {
       $default_value = $configuration['context_mapping'][$context_name];
     }
     else {
@@ -69,7 +69,7 @@ trait ContextFormTrait {
       $dataDefinition = $context_definition->getDataDefinition();
       $typed_data = $dataManager->create($dataDefinition);
 
-      if ($property_path = $configuration['context_mapping']['data']) {
+      if (isset($configuration['context_mapping']) && $property_path = $configuration['context_mapping']['data']) {
         $sub_paths = explode('.', $property_path);
         $dataType = \Drupal::entityManager()->getStorage('field_storage_config')->load($sub_paths[0] . '.' . $sub_paths[1])->getType();
 
